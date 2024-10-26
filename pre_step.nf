@@ -1,6 +1,6 @@
 params.cteph_vcf_path = '/LARGE0/gr10478/b37974/Pulmonary_Hypertension/Genome/CTEPH/08.addTommo_HGVD_AF_vcf/'
 params.naga_vcf_path = '/LARGE0/gr10478/b37974/Pulmonary_Hypertension/Genome/NAGAHAMA/08.addTommo_HGVD_AF_vcf/'
-params.outdir = '/LARGE0/gr10478/b37974/Pulmonary_Hypertension/cteph_regenie'
+params.outdir = '/LARGE0/gr10478/b37974/Pulmonary_Hypertension/cteph_regenie/pre_step'
 
 chromosomes = (1..22)
 
@@ -48,7 +48,7 @@ process snp_select {
     tuple val(chr), file(merged_vcf), file(merged_vcf_tbi) from vcf_snp_ch
 
     output:
-    tuple val(chr), file(snp_vcf), file(snp_vcf_tbi) into snp_vcf_ch
+    tuple val(chr), file(snp_vcf), file(snp_vcf_tbi) into vcf_info_ch
 
     script:
     snp_vcf = chr + '.tommo.snp.vcf.gz'
@@ -58,6 +58,30 @@ process snp_select {
     bcftools index -t ${snp_vcf} --threads 2
     """
 }
+
+process info_recalculate {
+    executor 'slurm'
+    queue 'gr10478b'
+    time '36h'
+    tag "${chr}"
+
+    publishDir "${params.outdir}/02.info_recalculate", mode: 'symlink'
+
+    input:
+    tuple val(chr), file(snp_vcf), file(snp_vcf_tbi) from vcf_info_ch
+
+    output:
+    tuple val(chr), file(info_vcf), file(info_vcf_tbi) into ex_ch
+
+    script:
+    info_vcf = chr + '.tommo.snp.reinfo.vcf.gz'
+    info_vcf_tbi = chr + '.tommo.snp.reinfo.vcf.gz.tbi'
+    """
+    bcftools +fill-tags ${snp_vcf} -Oz -o ${info_vcf} --threads 2 -- -t 'AF,AC,AN,DP:1=int(sum(FORMAT/DP))'
+    bcftools index -t ${info_vcf} --threads 2
+    """
+}
+
 
 
 
