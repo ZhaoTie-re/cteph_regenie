@@ -31,6 +31,8 @@ plt.hist(het_pd['F'], bins=30, edgecolor='k', alpha=0.7)
 plt.axvline(mean_F, color='red', linestyle='dashed', linewidth=1)
 plt.axvline(mean_F + 3*std_F, color='green', linestyle='dashed', linewidth=1)
 plt.axvline(mean_F - 3*std_F, color='green', linestyle='dashed', linewidth=1)
+plt.axvline(0.1, color='orange', linestyle='dashed', linewidth=1)
+plt.axvline(-0.1, color='orange', linestyle='dashed', linewidth=1)
 
 plt.xlabel('F')
 plt.ylabel('Count') 
@@ -39,7 +41,7 @@ plt.title('Distribution of F with 3 SD in Chr' + chr)
 plt.savefig(chr + ".het.pdf") 
 
 # %%
-outliers = het_pd[(het_pd['F'] > mean_F + 3*std_F) | (het_pd['F'] < mean_F - 3*std_F)]
+outliers = het_pd[(het_pd['F'] > 0.1) | (het_pd['F'] < -0.1)]
 outliers_to_remove = outliers[['FID', 'IID']]
 outliers_to_remove.to_csv(f'{chr}.high_het.sample', sep='\t', index=False, header=False)
 
