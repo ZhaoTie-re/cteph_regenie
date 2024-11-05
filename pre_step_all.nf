@@ -305,7 +305,7 @@ process clean_data_step1 {
     file(high_het) from high_het_sample
 
     output:
-    tuple file("${bed_prefix}.bed"), file("${bed_prefix}.bim"), file("${bed_prefix}.fam") into clean_data_ch_2
+    tuple file("${out_prefix}.bed"), file("${out_prefix}.bim"), file("${out_prefix}.fam") into clean_data_ch_2
     file("*.log")
 
     script:
