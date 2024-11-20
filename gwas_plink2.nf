@@ -4,6 +4,9 @@ params.age_sex_file = '/LARGE0/gr10478/b37974/Pulmonary_Hypertension/cteph_proje
 params.script_path = '/LARGE0/gr10478/b37974/Pulmonary_Hypertension/cteph_regenie/scripts'
 params.outdir = '/LARGE0/gr10478/b37974/Pulmonary_Hypertension/cteph_regenie/gwas_plink2'
 
+params.reported_loci_path = '/LARGE0/gr10478/b37974/Pulmonary_Hypertension/cteph_reported_loci/datasrc/cteph_reported_loci.xlsx'
+params.reported_gene_path = '/LARGE0/gr10478/b37974/Pulmonary_Hypertension/cteph_reported_loci/datasrc/cteph_reported_gene.xlsx'
+
 process pheno_prepare {
     executor 'slurm'
     queue 'gr10478b'
@@ -59,6 +62,7 @@ process gwas_plink2_firth {
 
     output:
     file("*.log")
+    file("*.glm.firth") into firth_assoc
 
     script:
     bed_prefix = bed_path + '/allchr.snp.qc'
@@ -93,6 +97,7 @@ process gwas_plink2_glm {
 
     output:
     file("*.log")
+    file("*.glm.logistic.hybrid") into glm_assoc
 
     script:
     bed_prefix = bed_path + '/allchr.snp.qc'
@@ -127,6 +132,7 @@ process gwas_plink2_firth_PCs {
 
     output:
     file("*.log")
+    file("*.glm.firth") into firth_pc_assoc
 
     script:
     bed_prefix = bed_path + '/allchr.snp.qc'
@@ -161,6 +167,7 @@ process gwas_plink2_glm_PCs {
 
     output:
     file("*.log")
+    file("*.glm.logistic.hybrid") into glm_pc_assoc
 
     script:
     bed_prefix = bed_path + '/allchr.snp.qc'
@@ -178,5 +185,92 @@ process gwas_plink2_glm_PCs {
     --glm hide-covar \\
     --threads 8 \\
     --out ${out_prefix}
+    """
+}
+
+firth_assoc
+    .map { item -> ['firth_assoc', item]}
+    .set { firth_assoc_pr }
+
+glm_assoc
+    .map { item -> ['glm_assoc', item]}
+    .set { glm_assoc_pr }
+
+firth_pc_assoc
+    .map { item -> ['firth_pc_assoc', item]}
+    .set { firth_pc_assoc_pr }
+
+glm_pc_assoc
+    .map { item -> ['glm_pc_assoc', item]}
+    .set { glm_pc_assoc_pr }
+
+firth_assoc_pr
+    .concat(glm_assoc_pr, firth_pc_assoc_pr, glm_pc_assoc_pr)
+    .into { assoc_pr; reported_loci_ch; reported_gene_ch }
+
+process gwas_result {
+    executor 'slurm'
+    queue 'gr10478b'
+    time '36h'
+    tag "${model_name}"
+
+    publishDir "${params.outdir}/07.gwas_result/${model_name}", mode: 'symlink'
+
+    input:
+    tuple val(model_name), file(plink_result) from assoc_pr
+
+    output:
+    file("*.csv")
+    file("*.pdf")
+
+    script:
+    """
+    source activate gwaslab
+    python ${params.script_path}/gwas_result.py --model_name ${model_name} --plink_result ${plink_result}
+    """
+}
+
+process gwas_reported_loci {
+    executor 'slurm'
+    queue 'gr10478b'
+    time '36h'
+    tag "${model_name}"
+
+    publishDir "${params.outdir}/08.gwas_reported_loci/${model_name}", mode: 'symlink'
+
+    input:
+    tuple val(model_name), file(plink_result) from reported_loci_ch
+    path(reported_loci) from params.reported_loci_path
+
+    output:
+    file("*.csv")
+    file("*.pdf")
+
+    script:
+    """
+    source activate gwaslab
+    python ${params.script_path}/gwas_reported_loci.py --report_loci ${reported_loci} --model_name ${model_name} --plink_result ${plink_result}
+    """
+}
+
+process gwas_reported_gene {
+    executor 'slurm'
+    queue 'gr10478b'
+    time '36h'
+    tag "${model_name}"
+
+    publishDir "${params.outdir}/09.gwas_reported_gene/${model_name}", mode: 'symlink'
+
+    input:
+    tuple val(model_name), file(plink_result) from reported_gene_ch
+    path(reported_gene) from params.reported_gene_path
+
+    output:
+    file("*.pdf")
+
+    script:
+    """
+    source activate gwaslab
+    python ${params.script_path}/gwas_reported_gene.py --report_gene ${reported_gene} --model_name ${model_name} --plink_result ${plink_result}
     """
 }
