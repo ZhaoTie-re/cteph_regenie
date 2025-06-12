@@ -48,110 +48,110 @@ process total_covar_prepare {
     """
 }
 
-process gwas_plink2_firth { 
-    executor 'slurm'
-    queue 'gr10478b'
-    time '36h'
+// process gwas_plink2_firth { 
+//     executor 'slurm'
+//     queue 'gr10478b'
+//     time '36h'
 
-    publishDir "${params.outdir}/03.gwas_plink2_firth", mode: 'symlink'
+//     publishDir "${params.outdir}/03.gwas_plink2_firth", mode: 'symlink'
 
-    input:
-    path(bed_path) from params.bed_path
-    file(covariate_file) from total_covar_file_ch
-    file(pheno_file) from pheno_file_ch
+//     input:
+//     path(bed_path) from params.bed_path
+//     file(covariate_file) from total_covar_file_ch
+//     file(pheno_file) from pheno_file_ch
 
-    output:
-    file("*.log")
-    file("*.glm.firth") into firth_assoc
+//     output:
+//     file("*.log")
+//     file("*.glm.firth") into firth_assoc
 
-    script:
-    bed_prefix = bed_path + '/allchr.snp.qc'
-    out_prefix = 'cteph_gwas_plink2'
-    covariate_cols='6-7'
-    col_name="PHENO1"
-    """
-    export PATH=/home/b/b37974/:$PATH
-    plink2 \\
-    --bfile ${bed_prefix} \\
-    --pheno ${pheno_file} \\
-    --pheno-name ${col_name} \\
-    --covar ${covariate_file} \\
-    --covar-col-nums ${covariate_cols} \\
-    --glm hide-covar firth single-prec-cc \\
-    --threads 8 \\
-    --out ${out_prefix}
-    """
-}
+//     script:
+//     bed_prefix = bed_path + '/allchr.snp.qc'
+//     out_prefix = 'cteph_gwas_plink2'
+//     covariate_cols='6-7'
+//     col_name="PHENO1"
+//     """
+//     export PATH=/home/b/b37974/:$PATH
+//     plink2 \\
+//     --bfile ${bed_prefix} \\
+//     --pheno ${pheno_file} \\
+//     --pheno-name ${col_name} \\
+//     --covar ${covariate_file} \\
+//     --covar-col-nums ${covariate_cols} \\
+//     --glm hide-covar firth single-prec-cc \\
+//     --threads 8 \\
+//     --out ${out_prefix}
+//     """
+// }
 
-process gwas_plink2_glm { 
-    executor 'slurm'
-    queue 'gr10478b'
-    time '36h'
+// process gwas_plink2_glm { 
+//     executor 'slurm'
+//     queue 'gr10478b'
+//     time '36h'
 
-    publishDir "${params.outdir}/04.gwas_plink2_glm", mode: 'symlink'
+//     publishDir "${params.outdir}/04.gwas_plink2_glm", mode: 'symlink'
 
-    input:
-    path(bed_path) from params.bed_path
-    file(covariate_file) from total_covar_file_ch_2
-    file(pheno_file) from pheno_file_ch_2
+//     input:
+//     path(bed_path) from params.bed_path
+//     file(covariate_file) from total_covar_file_ch_2
+//     file(pheno_file) from pheno_file_ch_2
 
-    output:
-    file("*.log")
-    file("*.glm.logistic.hybrid") into glm_assoc
+//     output:
+//     file("*.log")
+//     file("*.glm.logistic.hybrid") into glm_assoc
 
-    script:
-    bed_prefix = bed_path + '/allchr.snp.qc'
-    out_prefix = 'cteph_gwas_plink2'
-    covariate_cols='6-7'
-    col_name="PHENO1"
-    """
-    export PATH=/home/b/b37974/:$PATH
-    plink2 \\
-    --bfile ${bed_prefix} \\
-    --pheno ${pheno_file} \\
-    --pheno-name ${col_name} \\
-    --covar ${covariate_file} \\
-    --covar-col-nums ${covariate_cols} \\
-    --glm hide-covar \\
-    --threads 8 \\
-    --out ${out_prefix}
-    """
-}
+//     script:
+//     bed_prefix = bed_path + '/allchr.snp.qc'
+//     out_prefix = 'cteph_gwas_plink2'
+//     covariate_cols='6-7'
+//     col_name="PHENO1"
+//     """
+//     export PATH=/home/b/b37974/:$PATH
+//     plink2 \\
+//     --bfile ${bed_prefix} \\
+//     --pheno ${pheno_file} \\
+//     --pheno-name ${col_name} \\
+//     --covar ${covariate_file} \\
+//     --covar-col-nums ${covariate_cols} \\
+//     --glm hide-covar \\
+//     --threads 8 \\
+//     --out ${out_prefix}
+//     """
+// }
 
-process gwas_plink2_firth_PCs { 
-    executor 'slurm'
-    queue 'gr10478b'
-    time '36h'
+// process gwas_plink2_firth_PCs { 
+//     executor 'slurm'
+//     queue 'gr10478b'
+//     time '36h'
 
-    publishDir "${params.outdir}/05.gwas_plink2_firth_PCs", mode: 'symlink'
+//     publishDir "${params.outdir}/05.gwas_plink2_firth_PCs", mode: 'symlink'
 
-    input:
-    path(bed_path) from params.bed_path
-    file(covariate_file) from total_covar_file_ch_3
-    file(pheno_file) from pheno_file_ch_3
+//     input:
+//     path(bed_path) from params.bed_path
+//     file(covariate_file) from total_covar_file_ch_3
+//     file(pheno_file) from pheno_file_ch_3
 
-    output:
-    file("*.log")
-    file("*.glm.firth") into firth_pc_assoc
+//     output:
+//     file("*.log")
+//     file("*.glm.firth") into firth_pc_assoc
 
-    script:
-    bed_prefix = bed_path + '/allchr.snp.qc'
-    out_prefix = 'cteph_gwas_plink2'
-    covariate_cols='6-12'
-    col_name="PHENO1"
-    """
-    export PATH=/home/b/b37974/:$PATH
-    plink2 \\
-    --bfile ${bed_prefix} \\
-    --pheno ${pheno_file} \\
-    --pheno-name ${col_name} \\
-    --covar ${covariate_file} \\
-    --covar-col-nums ${covariate_cols} \\
-    --glm hide-covar firth single-prec-cc \\
-    --threads 8 \\
-    --out ${out_prefix}
-    """
-}
+//     script:
+//     bed_prefix = bed_path + '/allchr.snp.qc'
+//     out_prefix = 'cteph_gwas_plink2'
+//     covariate_cols='6-12'
+//     col_name="PHENO1"
+//     """
+//     export PATH=/home/b/b37974/:$PATH
+//     plink2 \\
+//     --bfile ${bed_prefix} \\
+//     --pheno ${pheno_file} \\
+//     --pheno-name ${col_name} \\
+//     --covar ${covariate_file} \\
+//     --covar-col-nums ${covariate_cols} \\
+//     --glm hide-covar firth single-prec-cc \\
+//     --threads 8 \\
+//     --out ${out_prefix}
+//     """
+// }
 
 process gwas_plink2_glm_PCs { 
     executor 'slurm'
@@ -167,7 +167,7 @@ process gwas_plink2_glm_PCs {
 
     output:
     file("*.log")
-    file("*.glm.logistic.hybrid") into glm_pc_assoc
+    file("*.glm.logistic") into glm_pc_assoc
 
     script:
     bed_prefix = bed_path + '/allchr.snp.qc'
@@ -182,95 +182,95 @@ process gwas_plink2_glm_PCs {
     --pheno-name ${col_name} \\
     --covar ${covariate_file} \\
     --covar-col-nums ${covariate_cols} \\
-    --glm hide-covar \\
+    --glm hide-covar no-firth \\
     --threads 8 \\
     --out ${out_prefix}
     """
 }
 
-firth_assoc
-    .map { item -> ['firth_assoc', item]}
-    .set { firth_assoc_pr }
+// firth_assoc
+//     .map { item -> ['firth_assoc', item]}
+//     .set { firth_assoc_pr }
 
-glm_assoc
-    .map { item -> ['glm_assoc', item]}
-    .set { glm_assoc_pr }
+// glm_assoc
+//     .map { item -> ['glm_assoc', item]}
+//     .set { glm_assoc_pr }
 
-firth_pc_assoc
-    .map { item -> ['firth_pc_assoc', item]}
-    .set { firth_pc_assoc_pr }
+// firth_pc_assoc
+//     .map { item -> ['firth_pc_assoc', item]}
+//     .set { firth_pc_assoc_pr }
 
-glm_pc_assoc
-    .map { item -> ['glm_pc_assoc', item]}
-    .set { glm_pc_assoc_pr }
+// glm_pc_assoc
+//     .map { item -> ['glm_pc_assoc', item]}
+//     .set { glm_pc_assoc_pr }
 
-firth_assoc_pr
-    .concat(glm_assoc_pr, firth_pc_assoc_pr, glm_pc_assoc_pr)
-    .into { assoc_pr; reported_loci_ch; reported_gene_ch }
+// firth_assoc_pr
+//     .concat(glm_assoc_pr, firth_pc_assoc_pr, glm_pc_assoc_pr)
+//     .into { assoc_pr; reported_loci_ch; reported_gene_ch }
 
-process gwas_result {
-    executor 'slurm'
-    queue 'gr10478b'
-    time '36h'
-    tag "${model_name}"
+// process gwas_result {
+//     executor 'slurm'
+//     queue 'gr10478b'
+//     time '36h'
+//     tag "${model_name}"
 
-    publishDir "${params.outdir}/07.gwas_result/${model_name}", mode: 'symlink'
+//     publishDir "${params.outdir}/07.gwas_result/${model_name}", mode: 'symlink'
 
-    input:
-    tuple val(model_name), file(plink_result) from assoc_pr
+//     input:
+//     tuple val(model_name), file(plink_result) from assoc_pr
 
-    output:
-    file("*.csv")
-    file("*.pdf")
+//     output:
+//     file("*.csv")
+//     file("*.pdf")
 
-    script:
-    """
-    source activate gwaslab
-    python ${params.script_path}/gwas_result.py --model_name ${model_name} --plink_result ${plink_result}
-    """
-}
+//     script:
+//     """
+//     source activate gwaslab
+//     python ${params.script_path}/gwas_result.py --model_name ${model_name} --plink_result ${plink_result}
+//     """
+// }
 
-process gwas_reported_loci {
-    executor 'slurm'
-    queue 'gr10478b'
-    time '36h'
-    tag "${model_name}"
+// process gwas_reported_loci {
+//     executor 'slurm'
+//     queue 'gr10478b'
+//     time '36h'
+//     tag "${model_name}"
 
-    publishDir "${params.outdir}/08.gwas_reported_loci/${model_name}", mode: 'symlink'
+//     publishDir "${params.outdir}/08.gwas_reported_loci/${model_name}", mode: 'symlink'
 
-    input:
-    tuple val(model_name), file(plink_result) from reported_loci_ch
-    path(reported_loci) from params.reported_loci_path
+//     input:
+//     tuple val(model_name), file(plink_result) from reported_loci_ch
+//     path(reported_loci) from params.reported_loci_path
 
-    output:
-    file("*.csv")
-    file("*.pdf")
+//     output:
+//     file("*.csv")
+//     file("*.pdf")
 
-    script:
-    """
-    source activate gwaslab
-    python ${params.script_path}/gwas_reported_loci.py --report_loci ${reported_loci} --model_name ${model_name} --plink_result ${plink_result}
-    """
-}
+//     script:
+//     """
+//     source activate gwaslab
+//     python ${params.script_path}/gwas_reported_loci.py --report_loci ${reported_loci} --model_name ${model_name} --plink_result ${plink_result}
+//     """
+// }
 
-process gwas_reported_gene {
-    executor 'slurm'
-    queue 'gr10478b'
-    time '36h'
-    tag "${model_name}"
+// process gwas_reported_gene {
+//     executor 'slurm'
+//     queue 'gr10478b'
+//     time '36h'
+//     tag "${model_name}"
 
-    publishDir "${params.outdir}/09.gwas_reported_gene/${model_name}", mode: 'symlink'
+//     publishDir "${params.outdir}/09.gwas_reported_gene/${model_name}", mode: 'symlink'
 
-    input:
-    tuple val(model_name), file(plink_result) from reported_gene_ch
-    path(reported_gene) from params.reported_gene_path
+//     input:
+//     tuple val(model_name), file(plink_result) from reported_gene_ch
+//     path(reported_gene) from params.reported_gene_path
 
-    output:
-    file("*.pdf")
+//     output:
+//     file("*.pdf")
 
-    script:
-    """
-    source activate gwaslab
-    python ${params.script_path}/gwas_reported_gene.py --report_gene ${reported_gene} --model_name ${model_name} --plink_result ${plink_result}
-    """
-}
+//     script:
+//     """
+//     source activate gwaslab
+//     python ${params.script_path}/gwas_reported_gene.py --report_gene ${reported_gene} --model_name ${model_name} --plink_result ${plink_result}
+//     """
+// }
